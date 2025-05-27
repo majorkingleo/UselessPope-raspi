@@ -1,0 +1,8 @@
+from 
+https://cdn-learn.adafruit.com/downloads/pdf/neopixels-on-raspberry-pi.pdf
+https://learn.adafruit.com/circuitpython-on-raspberrypi-linux/using-neopixels-on-the-pi-5
+https://raw.githubusercontent.com/adafruit/Adafruit_Blinka_Raspberry_Pi5_Neopixel/refs/heads/main/examples/led_animation.py
+
+pip install Adafruit-Blinka-Raspberry-Pi5-Neopixel
+pip install adafruit-circuitpython-pixelbuf adafruit-circuitpython-led-animation
+
