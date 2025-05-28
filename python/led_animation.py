@@ -20,7 +20,7 @@ class Pi5Pixelbuf(adafruit_pixelbuf.PixelBuf):
     def _transmit(self, buf):
         neopixel_write(self._pin, buf)
 
-pixels = Pi5Pixelbuf(NEOPIXEL, num_pixels, auto_write=True, byteorder="BGR", brightness=0.3)
+pixels = Pi5Pixelbuf(NEOPIXEL, num_pixels, auto_write=True, byteorder="GRB", brightness=0.2)
 
 rainbow = Rainbow(pixels, speed=0.02, period=2)
 rainbow_chase = RainbowChase(pixels, speed=0.02, size=5, spacing=3)
