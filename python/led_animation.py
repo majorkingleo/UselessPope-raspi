@@ -36,6 +36,33 @@ class PixelBufLEDMatrix(Pi5Pixelbuf):
     def __init__(self, pin, size, **kwargs):        
         super().__init__(pin, size, **kwargs)        
 
+    def _transfer_panel1(self, buf:bytearray, matrix:bytearray):
+        # panel 1 (upper left) even rows
+        for y in range( 0, self.panel_rows, 2):
+            target_pixel_row_offset = self.max_pixel_offset - self.pixels_per_panel + (self.panel_rows*(y+1))
+            for x in range( 0, self.panel_rows ):
+                for idx_color in range (0,self._bpp):
+                    matrix[(target_pixel_row_offset-x)*self._bpp+idx_color] = buf[(y*self.max_x+x)*self._bpp+idx_color]
+
+
+        # panel 2 (upper left) odd rows
+        for y in range( 1, self.panel_rows + 1, 2):
+            target_pixel_row_offset = self.max_pixel_offset - self.pixels_per_panel + (self.panel_rows*y)+1
+            for x in range( 0, self.panel_rows ):
+                for idx_color in range (0,self._bpp):
+                    matrix[(target_pixel_row_offset+x)*self._bpp+idx_color] = buf[(y*self.max_x+x)*self._bpp+idx_color]
+
+    def _transfer_panel2(self, buf:bytearray, matrix:bytearray):
+        if True:
+            # panel 2 (upper right) even rows
+            for y in range( 0, self.panel_rows, 2):
+                target_pixel_row_offset = (self.max_pixel_offset - self.pixels_per_panel) - (self.panel_rows*(y))
+                print( "target_pixel_row_offset: {}".format(target_pixel_row_offset) )
+                for x in range( 0, self.panel_rows):
+                    for idx_color in range (0,self._bpp):
+                        matrix[(target_pixel_row_offset-x)*self._bpp+idx_color] = buf[(y*self.max_x+x+self.panel_cols)*self._bpp+idx_color]
+
+
     def _transmit(self, buf:bytearray):
         if self.matrix is None:
             self.matrix = buf.copy()
@@ -44,29 +71,32 @@ class PixelBufLEDMatrix(Pi5Pixelbuf):
         
         source_x = 0
         source_y = 0
-        
-        # panel 1 first 16 pixel of one row
-        start_x = source_x
-        start_y = source_y
-        target_pixel_row_offset = self.max_pixel_offset - self.pixels_per_panel + self.panel_rows
-        for x in range( 0, self.panel_rows ):
-            for idx_color in range (0,self._bpp):
-                self.matrix[(target_pixel_row_offset-x)*self._bpp+idx_color] = buf[x*self._bpp+idx_color]
-        
-        # panel 2 second 16 pixel of one row
-        start_x += self.panel_rows
-        target_pixel_row_offset = (self.max_pixel_offset - self.pixels_per_panel)
-        for x in range( 0, self.panel_rows ):
-            for idx_color in range (0,self._bpp):
-                self.matrix[(target_pixel_row_offset-x)*self._bpp+idx_color] = buf[(x+start_x)*self._bpp+idx_color]
+
+        if True:
+            self._transfer_panel1(buf, self.matrix)
+
+        if False:
+            self._transfer_panel2(buf, self.matrix)
 
 
-        start_x = 0
-        start_y += 1
-        target_pixel_row_offset = self.max_pixel_offset - self.pixels_per_panel + (self.panel_rows*(start_y))+1
-        for x in range( 0, self.panel_rows ):
-            for idx_color in range (0,self._bpp):
-                self.matrix[(target_pixel_row_offset+x)*self._bpp+idx_color] = buf[(start_y*self.max_x+x)*self._bpp+idx_color]
+        if False:
+            # panel 1 first 16 pixel of one row
+            start_x = source_x
+            start_y = source_y
+            target_pixel_row_offset = self.max_pixel_offset - self.pixels_per_panel + self.panel_rows
+            for x in range( 0, self.panel_rows ):
+                for idx_color in range (0,self._bpp):
+                    self.matrix[(target_pixel_row_offset-x)*self._bpp+idx_color] = buf[x*self._bpp+idx_color]
+            
+
+
+            # panel 1 second row
+            start_x = 0
+            start_y += 1
+            target_pixel_row_offset = self.max_pixel_offset - self.pixels_per_panel + (self.panel_rows*(start_y))+1
+            for x in range( 0, self.panel_rows ):
+                for idx_color in range (0,self._bpp):
+                    self.matrix[(target_pixel_row_offset+x)*self._bpp+idx_color] = buf[(start_y*self.max_x+x)*self._bpp+idx_color]
 
 
         if False:
@@ -148,6 +178,29 @@ def draw__2(offset:int, pixels:Pi5Pixelbuf):
         print(x)
         pixels[offset+x] = (0,255,(x*10)%255)
 
+def draw_filled_circle1(cx: int, cy: int, radius: int, pixels: Pi5Pixelbuf, color=(255, 255, 255)):
+    for y in range(-radius, radius + 1):
+        for x in range(-radius, radius + 1):
+            if x*x + y*y <= radius*radius:
+                px = cx + x
+                py = cy + y
+                if 0 <= px < 32 and 0 <= py < 32:
+                    pixels[py * 32 + px] = color
+
+def draw_filled_circle(cx: int, cy: int, radius: int, pixels: Pi5Pixelbuf, color=(255, 255, 255)):
+    for y in range(-radius, radius + 1):
+        for x in range(-radius, radius + 1):
+            dist_sq = x*x + y*y
+            if dist_sq <= radius*radius:
+                px = cx + x
+                py = cy + y
+                if 0 <= px < 32 and 0 <= py < 32:
+                    # Fade near the edge: 1.0 at center, 0.2 at edge
+                    fade = 1.0 - (dist_sq / (radius*radius))
+                    fade = max(0.02, fade)  # Don't go below 0.2
+                    faded_color = tuple(int(c * fade) for c in color)
+                    pixels[py * 32 + px] = faded_color
+
 try:
     pixels.fill(0)
     pixels.show()
@@ -160,6 +213,7 @@ try:
         #draw_l(0,pixels)
         draw__1(0,pixels)
         draw__2(16*2,pixels)
+        draw_filled_circle(16, 16, 14, pixels, color=(0, 255, 0))
         pixels.show()        
         break
         #animations.animate()
