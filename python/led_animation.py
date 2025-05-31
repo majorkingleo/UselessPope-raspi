@@ -82,6 +82,23 @@ class PixelBufLEDMatrix(Pi5Pixelbuf):
                 for idx_color in range (0,self._bpp):
                     matrix[(target_pixel_row_offset+x)*self._bpp+idx_color] = buf[((y+self.panel_rows)*self.max_x+x)*self._bpp+idx_color]
 
+
+    def _transfer_panel4(self, buf:bytearray, matrix:bytearray):
+        # panel 4 (lower right) even rows
+        for y in range( 0, self.panel_rows, 2):
+            target_pixel_row_offset = (self.pixels_per_panel*2) - (self.panel_rows*(y))-1
+            print( "target_pixel_row_offset: {}".format(target_pixel_row_offset) )
+            for x in range( 0, self.panel_rows):
+                for idx_color in range (0,self._bpp):
+                    matrix[(target_pixel_row_offset-x)*self._bpp+idx_color] = buf[((y+self.panel_rows)*self.max_x+x+self.panel_cols)*self._bpp+idx_color]
+
+        # panel 4 (lower right) odd rows        
+        for y in range( 1, self.panel_rows + 1, 2):
+            target_pixel_row_offset = (self.pixels_per_panel*2) - (self.panel_rows*(y+1))
+            for x in range( 0, self.panel_rows):
+                for idx_color in range (0,self._bpp):
+                    matrix[(target_pixel_row_offset+x)*self._bpp+idx_color] = buf[((y+self.panel_rows)*self.max_x+x+self.panel_cols)*self._bpp+idx_color]
+
     def _transmit(self, buf:bytearray):
         if self.matrix is None:
             self.matrix = buf.copy()
@@ -95,6 +112,7 @@ class PixelBufLEDMatrix(Pi5Pixelbuf):
         self._transfer_panel1(buf, self.matrix)    
         self._transfer_panel2(buf, self.matrix)
         self._transfer_panel3(buf, self.matrix)
+        self._transfer_panel4(buf, self.matrix)
 
         if False:
             # panel 1 first 16 pixel of one row
