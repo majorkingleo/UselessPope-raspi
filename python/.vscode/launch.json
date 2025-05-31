@@ -12,6 +12,15 @@
             "program": "${file}",
             "console": "integratedTerminal",
             "python": "/home/papst/ypy/bin/python"
+        },
+        {
+            "name": "send_image",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "send_image.py",
+            "console": "integratedTerminal",
+            "python": "/home/papst/ypy/bin/python",
+            "args": ["pacman-icon.png"]
         }
     ]
 }
