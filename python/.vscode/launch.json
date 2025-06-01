@@ -20,7 +20,7 @@
             "program": "send_image.py",
             "console": "integratedTerminal",
             "python": "/home/papst/ypy/bin/python",
-            "args": ["pacman-icon.png"]
+            "args": ["pacman.gif"]
         }
     ]
 }
