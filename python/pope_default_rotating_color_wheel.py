@@ -4,7 +4,7 @@ import LEDMatrix
 import board
 import time
 
-from LEDMatrix import LEDMatrix, Pi5Pixelbuf
+from LEDMatrix import LEDMatrix, Pi5Pixelbuf, draw_filled_circle
 from typing import Tuple
 
 NEOPIXEL = board.D13
@@ -69,19 +69,7 @@ def draw_color_wheel_circle_spiral(cx: int, cy: int, radius: int, pixels: Pi5Pix
                     faded_color = tuple(int(c * fade) for c in color)
                     pixels[py * 32 + px] = faded_color
 
-def draw_filled_circle(cx: int, cy: int, radius: int, pixels: Pi5Pixelbuf, color=(255, 255, 255)):
-    for y in range(-radius, radius + 1):
-        for x in range(-radius, radius + 1):
-            dist_sq = x*x + y*y
-            if dist_sq <= radius*radius:
-                px = cx + x
-                py = cy + y
-                if 0 <= px < 32 and 0 <= py < 32:
-                    # Fade near the edge: 1.0 at center, 0.2 at edge
-                    fade = 1.0 - (dist_sq / (radius*radius))
-                    fade = max(0.02, fade)  # Don't go below 0.2
-                    faded_color = tuple(int(c * fade) for c in color)
-                    pixels[py * 32 + px] = faded_color
+
 
 try:
     pixels.fill(0)
