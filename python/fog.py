@@ -4,6 +4,7 @@ import gpiod
 import gpiod.line
 import os
 import sys
+import time
 
 class GpiodBase:
 
@@ -67,3 +68,4 @@ if __name__ == "__main__":
     else:
         fog.toggle()
 
+    time.sleep(5)
