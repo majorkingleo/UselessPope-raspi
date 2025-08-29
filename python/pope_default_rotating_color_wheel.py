@@ -8,7 +8,7 @@ from LEDMatrix import LEDMatrix, Pi5Pixelbuf, draw_filled_circle
 from typing import Tuple
 
 NEOPIXEL = board.D13
-pixels = LEDMatrix(NEOPIXEL, auto_write=False, brightness=0.3)
+pixels = LEDMatrix(NEOPIXEL, auto_write=False, brightness=0.04)
 
 def hsv_to_rgb(h, s, v) -> Tuple[int, int, int]:
     # h in [0, 1], s in [0, 1], v in [0, 1]
