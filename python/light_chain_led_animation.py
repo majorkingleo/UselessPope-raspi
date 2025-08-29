@@ -12,11 +12,11 @@ import LEDMatrix
 from LEDMatrix import Pi5Pixelbuf
 
 
-NEOPIXEL = board.D12
-num_pixels = 50
+NEOPIXEL = board.D13
+num_pixels = 1024+5
 
 
-pixels = Pi5Pixelbuf(NEOPIXEL, num_pixels, auto_write=True, byteorder="GRB", brightness=0.2)
+pixels = Pi5Pixelbuf(NEOPIXEL, num_pixels, auto_write=True, byteorder="GRB", brightness=0.04)
 
 rainbow = Rainbow(pixels, speed=0.02, period=2)
 rainbow_chase = RainbowChase(pixels, speed=0.02, size=5, spacing=3)
