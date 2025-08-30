@@ -9,26 +9,26 @@ import gpiod
 
 class Fog (GpiodBase.GpiodBase):    
     
-    PIN_NAME = "GPIO23"
-    chip = ""
-    offset = 0
-    config = {}
+    Fog_PIN_NAME = "GPIO23"
+    Fog_chip = ""
+    Fog_offset = 0
+    Fog_config = {}
      
     def __init__(self):
-        (self.chip,self.offset) = self.find_line_by_name(self.PIN_NAME)
-        self.config={ self.offset: gpiod.LineSettings( direction=gpiod.line.Direction.OUTPUT )}
-        self.request = gpiod.request_lines( self.chip, config=self.config )            
+        (self.Fog_chip,self.Fog_offset) = self.find_line_by_name(self.Fog_PIN_NAME)
+        self.Fog_config={ self.Fog_offset: gpiod.LineSettings( direction=gpiod.line.Direction.OUTPUT )}
+        self.Fog_request = gpiod.request_lines( self.Fog_chip, config=self.Fog_config )            
 
     def on(self):
-        self.request.set_value( self.offset, gpiod.line.Value.ACTIVE )
+        self.Fog_request.set_value( self.Fog_offset, gpiod.line.Value.ACTIVE )
         print("Fog ON")
         
     def off(self):
-        self.request.set_value( self.offset, gpiod.line.Value.INACTIVE )
+        self.Fog_request.set_value( self.Fog_offset, gpiod.line.Value.INACTIVE )
         print("Fog OFF")
 
     def toggle(self):
-        current_value = self.request.get_value(self.offset)
+        current_value = self.Fog_request.get_value(self.Fog_offset)
         if current_value == gpiod.line.Value.ACTIVE:
             self.off()
         else:

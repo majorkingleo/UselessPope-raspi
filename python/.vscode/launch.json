@@ -21,6 +21,15 @@
             "console": "integratedTerminal",
             "python": "/home/papst/ypy/bin/python",
             "args": ["pacman.gif"]
+        },
+                {
+            "name": "ring_fog",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "ring_fog.py",
+            "console": "integratedTerminal",
+            "python": "/home/papst/ypy/bin/python",
+            "args": ["GPIO21"]
         }
     ]
 }
