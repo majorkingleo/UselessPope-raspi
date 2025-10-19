@@ -18,7 +18,7 @@ num_pixels = 16*16*4
 
 
 #pixels = Pi5Pixelbuf(NEOPIXEL, num_pixels, auto_write=True, byteorder="GRB", brightness=0.2)
-pixels = LEDMatrix(NEOPIXEL, auto_write=True, brightness=0.2)
+pixels = LEDMatrix(NEOPIXEL, auto_write=True, brightness=0.04)
 
 rainbow = Rainbow(pixels, speed=0.02, period=2)
 rainbow_chase = RainbowChase(pixels, speed=0.02, size=5, spacing=3)
