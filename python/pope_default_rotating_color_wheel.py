@@ -95,6 +95,7 @@ try:
                 angle_offset = 1
             time.sleep(0.01)
 
+            # refresh brightness if changed
             if time.time() > config_refresh_time_out:
                 brightness = config.get('brightness')
 
@@ -102,7 +103,6 @@ try:
                     brightness = float( brightness )
 
                     if current_brightness != brightness:
-                        print( "refreshing\n" )
                         current_brightness = brightness
                         pixels = LEDMatrix(NEOPIXEL, auto_write=False, brightness=current_brightness)
 
