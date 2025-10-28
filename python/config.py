@@ -24,9 +24,10 @@ class Config:
     def get( self, key: str ):
         cursor = self.db.cursor()
 
-        cursor.execute( "select `value` from `CONFIG` where `key`='{0}'".format( key ) )
+        cursor.execute( "select `value` from `CONFIG` where `key`='{0}'".format( key ) )        
 
         for row in cursor.fetchall():
+            cursor.execute( "commit" )
             return row[0]
 
         return None

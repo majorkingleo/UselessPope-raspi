@@ -3,12 +3,14 @@ import math
 import LEDMatrix
 import board
 import time
+import config
 
 from LEDMatrix import LEDMatrix, Pi5Pixelbuf, draw_filled_circle
 from typing import Tuple
 
 NEOPIXEL = board.D13
-pixels = LEDMatrix(NEOPIXEL, auto_write=False, brightness=0.04)
+current_brightness = 0.04
+pixels = LEDMatrix(NEOPIXEL, auto_write=False, brightness=current_brightness)
 
 def hsv_to_rgb(h, s, v) -> Tuple[int, int, int]:
     # h in [0, 1], s in [0, 1], v in [0, 1]
@@ -74,6 +76,8 @@ def draw_color_wheel_circle_spiral(cx: int, cy: int, radius: int, pixels: Pi5Pix
 try:
     pixels.fill(0)
     pixels.show()
+    config_refresh_time_out = time.time() + 0.5
+    config = config.Config()
 
     while True:
         angle_offset = 0.0
@@ -90,6 +94,22 @@ try:
             if angle_offset <= 0.0:
                 angle_offset = 1
             time.sleep(0.01)
+
+            if time.time() > config_refresh_time_out:
+                brightness = config.get('brightness')
+
+                if brightness is not None:
+                    brightness = float( brightness )
+
+                    if current_brightness != brightness:
+                        print( "refreshing\n" )
+                        current_brightness = brightness
+                        pixels = LEDMatrix(NEOPIXEL, auto_write=False, brightness=current_brightness)
+
+                else:
+                    print( "is none\n" )
+
+                config_refresh_time_out = time.time() + 0.5
 
 finally:
     time.sleep(.02)
