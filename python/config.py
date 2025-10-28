@@ -32,6 +32,13 @@ class Config:
 
         return None
 
+    def put( self, key: str, value: str ):
+        cursor = self.db.cursor()
+
+        cursor.execute( "update `CONFIG` set `value`='{0}' where `key`='{1}'".format( value, key ) )
+        cursor.execute( "commit" )
+
+
     
 if __name__ == "__main__":
     config = Config()   

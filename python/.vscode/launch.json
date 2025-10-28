@@ -22,7 +22,7 @@
             "python": "/home/papst/ypy/bin/python",
             "args": ["pacman.gif"]
         },
-                {
+        {
             "name": "ring_fog",
             "type": "debugpy",
             "request": "launch",
@@ -30,6 +30,15 @@
             "console": "integratedTerminal",
             "python": "/home/papst/ypy/bin/python",
             "args": ["GPIO21"]
+        },
+        {
+            "name": "ring_brightness",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "ring_brightness.py",
+            "console": "integratedTerminal",
+            "python": "/home/papst/ypy/bin/python",
+            "args": ["GPIO20"]
         }
     ]
 }
