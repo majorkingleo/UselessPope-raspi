@@ -36,22 +36,6 @@ def hsv_to_rgb(h, s, v) -> Tuple[int, int, int]:
     # Default return to satisfy type checker
     return (0, 0, 0)
 
-def draw_color_wheel_circle_classic(cx: int, cy: int, radius: int, pixels: Pi5Pixelbuf, angle_offset: float = 0.0, brightness: float = 1.0):
-    for y in range(-radius, radius + 1):
-        for x in range(-radius, radius + 1):
-            dist_sq = x*x + y*y
-            if dist_sq <= radius*radius:
-                px = cx + x
-                py = cy + y
-                if 0 <= px < 32 and 0 <= py < 32:
-                    angle = (math.atan2(y, x) + math.pi) / (2 * math.pi)  # 0..1
-                    angle = (angle + angle_offset) % 1.0
-                    color = hsv_to_rgb(angle, 1.0, brightness)
-                    # Optional: fade near the edge
-                    fade = 1.0 - (dist_sq / (radius*radius))
-                    fade = max(0.1, fade)
-                    faded_color = tuple(int(c * fade) for c in color)
-                    pixels[py * 32 + px] = faded_color
 
 def draw_color_wheel_circle_spiral(cx: int, cy: int, radius: int, pixels: Pi5Pixelbuf, angle_offset: float = 0.0, brightness: float = 1.0, twist: float = 1.0):
     for y in range(-radius, radius + 1):
@@ -71,6 +55,8 @@ def draw_color_wheel_circle_spiral(cx: int, cy: int, radius: int, pixels: Pi5Pix
                     faded_color = tuple(int(c * fade) for c in color)
                     pixels[py * 32 + px] = faded_color
 
+def set_pixel(cx: int, cy: int, pixels: Pi5Pixelbuf, color ):
+    pixels[cy * 32 + cx] = color
 
 
 try:
@@ -81,7 +67,7 @@ try:
 
     while True:
         angle_offset = 0.0
-        while True:                 
+        while True:       
             pixels.fill(0)
 
             # refresh brightness if changed
@@ -106,6 +92,8 @@ try:
             draw_filled_circle(5, 27, 3, pixels, color=(255, 255, 255))
             draw_filled_circle(27, 5, 3, pixels, color=(255, 255, 255))
             draw_filled_circle(27, 27, 3, pixels, color=(255, 255, 255))
+            draw_filled_circle(15, 15, 1, pixels, color=(255, 0, 0))
+            draw_filled_circle(13, 15, 1, pixels, color=(255, 0, 0))
             pixels.show()
             angle_offset -= 0.06
             if angle_offset <= 0.0:
