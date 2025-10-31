@@ -3,14 +3,17 @@ import MySQLdb
 import configparser
 import sys
 import os
+from pathlib import Path
+
+def is_db_available():
+    socket = Path( '/run/mysqld/mysqld.sock' )
+    return socket.exists()
 
 class Config:
 
     def __init__(self):
         config = configparser.ConfigParser()      
         r = config.read( os.getenv("HOME") + "/.UselessPope-Broker.ini" )
-
-        print(r)
 
         username = config.get('database', 'username')
         password = config.get('database', 'password')
@@ -19,7 +22,7 @@ class Config:
         self.db = MySQLdb.connect(host="localhost",                 # your host, usually localhost
                                   user=username,    # your username
                                   passwd=password,  # your password
-                                  db=instance)        # name of the data base
+                                  db=instance)       # name of the data base
         
     def get( self, key: str ):
         cursor = self.db.cursor()
