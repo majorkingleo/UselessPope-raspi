@@ -74,8 +74,8 @@ def draw_color_wheel_circle_spiral(cx: int, cy: int, radius: int, pixels: Pi5Pix
 
 
 try:
-    pixels.fill(0)
-    pixels.show()
+    #pixels.fill(0)
+    #pixels.show()
 
     # wait for database to start
     while not config.is_db_available():
@@ -119,5 +119,5 @@ try:
 
 finally:
     time.sleep(.02)
-    pixels.fill(0)
-    pixels.show()
+    #pixels.fill(0)
+    #pixels.show()

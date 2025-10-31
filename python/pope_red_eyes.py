@@ -60,8 +60,8 @@ def set_pixel(cx: int, cy: int, pixels: Pi5Pixelbuf, color ):
 
 
 try:
-    pixels.fill(0)
-    pixels.show()
+    #pixels.fill(0)
+    #pixels.show()
 
     # wait for database to start
     while not config.is_db_available():
@@ -107,5 +107,5 @@ try:
 
 finally:
     time.sleep(.02)
-    pixels.fill(0)
-    pixels.show()
+    #pixels.fill(0)
+    #pixels.show()
