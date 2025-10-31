@@ -39,6 +39,15 @@
             "console": "integratedTerminal",
             "python": "/home/papst/ypy/bin/python",
             "args": ["GPIO20"]
+        },
+                {
+            "name": "ring_animation",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "ring_animation.py",
+            "console": "integratedTerminal",
+            "python": "/home/papst/ypy/bin/python",
+            "args": ["GPIO24"]
         }
     ]
 }
