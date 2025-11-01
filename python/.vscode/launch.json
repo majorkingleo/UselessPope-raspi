@@ -40,7 +40,7 @@
             "python": "/home/papst/ypy/bin/python",
             "args": ["GPIO20"]
         },
-                {
+        {
             "name": "ring_animation",
             "type": "debugpy",
             "request": "launch",
@@ -48,6 +48,15 @@
             "console": "integratedTerminal",
             "python": "/home/papst/ypy/bin/python",
             "args": ["GPIO24"]
-        }
+        },
+        {
+            "name": "ring_motor",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "ring_motor.py",
+            "console": "integratedTerminal",
+            "python": "/home/papst/ypy/bin/python",
+            "args": ["GPIO25"]
+        }        
     ]
 }
