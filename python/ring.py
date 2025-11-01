@@ -16,6 +16,7 @@ class Ring (GpiodBase.GpiodBase):
     offset = 0
     config = {}
     tone_dir = "/home/papst/mp3/Soundboard/_sounds"
+    broker = "/home/papst/UselessPope-Broker/broker"
     is_ringing = False
      
     def __init__(self, gpio_pin:str):
@@ -35,12 +36,11 @@ class Ring (GpiodBase.GpiodBase):
     def play_sound(self):
         files = list()
         for f in os.listdir(self.tone_dir):
-            if f.endswith(".wav"):
-                files.append(f)
+            files.append(f)
             
         random.shuffle(files)
                 
-        os.system( "aplay {0}/{1}".format( self.tone_dir, files[0]) );
+        os.system( "{} -enqueue-chunk {}/{}".format( self.broker, self.tone_dir, files[0]) );
                 
     def run(self):
         while True:            
