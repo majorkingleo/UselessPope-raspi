@@ -30,8 +30,11 @@ class Config:
         cursor.execute( "select `value` from `CONFIG` where `key`='{0}'".format( key ) )        
 
         for row in cursor.fetchall():
-            cursor.execute( "commit" )
+            cursor.execute( "commit" )            
             return row[0]
+
+        # also here reset db session
+        cursor.execute( "commit" )
 
         return None
 

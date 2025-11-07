@@ -4,6 +4,9 @@ from time import sleep
 import gpiod
 import os
 import sys
+import config
+from config import Config
+import time
 
 class Ring (fog.Fog):    
     
@@ -30,12 +33,26 @@ class Ring (fog.Fog):
             self.is_ringing = True
                                 
     def run(self):
-        while True:            
+
+        config_refresh_time_out = 0
+        config = Config()
+        old_fog_state = 0        
+
+        while True:
+            # refresh brightness if changed
+            if time.time() > config_refresh_time_out:
+                config_refresh_time_out = time.time() + 0.5
+                fog = config.get('fog')
+
+                if fog != None and fog != old_fog_state:
+                    self.toggle()
+                    old_fog_state = fog
+
             self.detect_ringing()
             
             if self.is_ringing:
                 self.toggle()
-                sleep(1)
+                sleep(0.3)
                 
             self.is_ringing = False
             sleep(0.05)
@@ -52,6 +69,10 @@ if __name__ == "__main__":
     if len(sys.argv) < 2:
         print("Usage: {} <GPIO_PIN_NAME> [GPIO1,GPIO7,GPIO8,GPIO16,GPIO25]\n".format(sys.argv[0]))
         sys.exit(1)
+
+    # wait for database to start
+    while not config.is_db_available():
+        time.sleep(0.3)
 
     ring = Ring( sys.argv[1] )
     ring.run()
