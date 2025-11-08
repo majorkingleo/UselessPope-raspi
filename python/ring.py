@@ -7,7 +7,8 @@ import GpiodBase
 import gpiod
 import os
 import sys
-
+import glob
+import json
 
 class Ring (GpiodBase.GpiodBase):    
     
@@ -15,9 +16,11 @@ class Ring (GpiodBase.GpiodBase):
     chip = ""
     offset = 0
     config = {}
-    tone_dir = "/home/papst/mp3/Soundboard/_sounds"
+    #tone_dir = "/home/papst/mp3/Soundboard/_sounds"
+    tone_dir = "/var/www/share/Soundboard"
     broker = "/home/papst/UselessPope-Broker/broker"
     is_ringing = False
+    count = 0
      
     def __init__(self, gpio_pin:str):
         self.PIN_NAME = gpio_pin
@@ -35,12 +38,17 @@ class Ring (GpiodBase.GpiodBase):
                 
     def play_sound(self):
         files = list()
-        for f in os.listdir(self.tone_dir):
+        for f in glob.glob("./**/*", root_dir=self.tone_dir, recursive = True):
             files.append(f)
             
         random.shuffle(files)
                 
-        os.system( "{} -enqueue-chunk {}/{}".format( self.broker, self.tone_dir, files[0]) );
+        #print( "file: {}".format( files[0] ))
+        complete_path = self.tone_dir + "/" + files[0]
+        cmd = "{} -enqueue-chunk {}".format( self.broker, json.dumps(complete_path, ensure_ascii=False ) )
+        print( "{}: {}".format( self.count, cmd ) )
+        self.count += 1
+        os.system( cmd )
                 
     def run(self):
         while True:            
@@ -48,6 +56,7 @@ class Ring (GpiodBase.GpiodBase):
             
             if self.is_ringing:
                 self.play_sound()
+                sleep(0.3)
                 
             self.is_ringing = False
             sleep(0.05)
