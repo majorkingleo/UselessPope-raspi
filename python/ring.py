@@ -39,13 +39,13 @@ class Ring (GpiodBase.GpiodBase):
     def play_sound(self):
         files = list()
         for f in glob.glob("./**/*", root_dir=self.tone_dir, recursive = True):
-            files.append(f)
+            complete_path = self.tone_dir + "/" + f
+            if os.path.isfile( complete_path ):
+                files.append( complete_path )
             
         random.shuffle(files)
-                
-        #print( "file: {}".format( files[0] ))
-        complete_path = self.tone_dir + "/" + files[0]
-        cmd = "{} -enqueue-chunk {}".format( self.broker, json.dumps(complete_path, ensure_ascii=False ) )
+                                
+        cmd = "{} -enqueue-chunk {}".format( self.broker, json.dumps(files[0], ensure_ascii=False ) )
         print( "{}: {}".format( self.count, cmd ) )
         self.count += 1
         os.system( cmd )
