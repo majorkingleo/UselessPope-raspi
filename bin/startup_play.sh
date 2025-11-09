@@ -24,12 +24,6 @@ killall broker
 
 ${BROKER} -enqueue-music /home/papst/audio_music/*
 
-${BROKER} -master -retry-db-timeout 60 &
-${BROKER} -listen -retry-db-timeout 60 &
-${BROKER} -button-worker -retry-db-timeout 60 &
-${BROKER} -master-animations -retry-db-timeout 60 &
-${BROKER} -master-stats -retry-db-timeout 60 &
-${BROKER} -pope-reacts-answers-file ${POPE_FILE} -retry-db-timeout 60 &
-
+${BROKER} -debug > /tmp/broker.log &
 wait
 
