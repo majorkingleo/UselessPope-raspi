@@ -48,6 +48,7 @@ class Ring (GpiodBase.GpiodBase):
             
             if self.is_ringing:
                 self.play_sound()
+                sleep(0.3)
                 
             self.is_ringing = False
             sleep(0.05)
