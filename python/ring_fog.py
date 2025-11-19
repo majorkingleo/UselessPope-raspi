@@ -44,9 +44,9 @@ class Ring (fog.Fog):
                 config_refresh_time_out = time.time() + 0.5
                 fog = config.get('fog')
 
-                if fog != None and fog != old_fog_state:
+                if fog != None and int(fog) != old_fog_state:
                     self.toggle()
-                    old_fog_state = fog
+                    old_fog_state = int(fog)
 
             self.detect_ringing()
             
