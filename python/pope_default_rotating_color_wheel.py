@@ -83,6 +83,7 @@ try:
 
     config_refresh_time_out = 0
     config = config.Config()
+    time_stop_start = time.time()
 
     while True:
         angle_offset = 0.0
@@ -114,6 +115,12 @@ try:
             pixels.show()
             angle_offset -= 0.06
             if angle_offset <= 0.0:
+                time_elapsed = time.time() - time_stop_start
+                # print( "{0}s".format(time_elapsed))
+                time_stop_start = time.time()
+
+                config.write_stats( "frequenz", str(int(time_elapsed*60)))
+
                 angle_offset = 1
             time.sleep(0.01)
 

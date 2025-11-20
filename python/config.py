@@ -44,7 +44,11 @@ class Config:
         cursor.execute( "update `CONFIG` set `value`='{0}' where `key`='{1}'".format( value, key ) )
         cursor.execute( "commit" )
 
+    def write_stats( self, key: str, value: str ):
+        cursor = self.db.cursor()
 
+        cursor.execute( "update `STATS` set `value`='{0}' where `key`='{1}'".format( value, key ) )
+        cursor.execute( "commit" )
     
 if __name__ == "__main__":
     config = Config()   
