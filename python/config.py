@@ -49,6 +49,20 @@ class Config:
 
         cursor.execute( "update `STATS` set `value`='{0}' where `key`='{1}'".format( value, key ) )
         cursor.execute( "commit" )
+
+    def get_stats( self, key: str ):
+        cursor = self.db.cursor()
+
+        cursor.execute( "select `value` from `STATS` where `key`='{0}'".format( key ) )
+
+        for row in cursor.fetchall():
+            cursor.execute( "commit" )            
+            return row[0]
+
+        # also here reset db session
+        cursor.execute( "commit" )
+
+        return None        
     
 if __name__ == "__main__":
     config = Config()   
