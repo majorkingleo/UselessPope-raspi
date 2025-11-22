@@ -41,7 +41,10 @@ class Config:
     def put( self, key: str, value: str ):
         cursor = self.db.cursor()
 
-        cursor.execute( "update `CONFIG` set `value`='{0}' where `key`='{1}'".format( value, key ) )
+        cursor.execute( "update `CONFIG` set `value`='{0}', "
+                       " `hist_ae_zeit` = CURRENT_TIMESTAMP(), "
+                       " `hist_ae_user` = 'papst' " 
+                       "where `key`='{1}'".format( value, key ) )
         cursor.execute( "commit" )
 
     def write_stats( self, key: str, value: str ):
