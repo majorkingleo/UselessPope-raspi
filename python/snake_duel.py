@@ -142,33 +142,30 @@ class Duel:
 
     def simple_ai_choose_dir(self, snake):
         """
-        Improved AI that actively avoids running into tails:
-        - treats a currently-occupied tail cell as safe only if that tail will be freed next tick
-        - uses a small BFS/flood-fill up to 'lookahead' steps to measure reachable free area from a candidate move
-        - prefers moves that increase free-space and distance from opponent head, avoids walls
-        - small randomness to avoid deterministic ties
+        Smarter, competitive AI:
+        - avoids tails as before
+        - prefers moves that increase its own free area
+        - prefers moves that reduce opponent's reachable area (lure opponent into tight spaces / trails)
+        - favors crossing the center rather than hugging walls
+        - small randomness to avoid determinism
         """
         x, y = snake.head()
         opp = self.p1 if snake is self.p2 else self.p2
 
         def tail_will_be_freed(pos):
-            """Return True if the cell is occupied but it's a tail cell that will be cleared next tick."""
             px, py = pos
             if not (0 <= px < WIDTH and 0 <= py < HEIGHT):
                 return False
             occ = self.occupancy[py][px]
             if occ is None:
                 return False
-            # tail cell is last element of occ.body
             try:
                 tail = occ.body[-1]
             except Exception:
                 return False
-            # according to step() logic a tail is recorded/cleared only when len(body) >= max_len
             return tail == pos and len(occ.body) >= occ.max_len
 
         def cell_is_free_for_move(pos):
-            """Return True if the cell is currently free or will be freed this tick (tail)."""
             px, py = pos
             if not (0 <= px < WIDTH and 0 <= py < HEIGHT):
                 return False
@@ -177,29 +174,25 @@ class Duel:
                 return True
             return tail_will_be_freed(pos)
 
-        # candidate directions (disallow 180 turn)
+        # candidate directions (no 180 turn)
         candidates = [d for d in self.DIRS if not (d[0] == -snake.dir[0] and d[1] == -snake.dir[1])]
-
-        # if no candidates (shouldn't happen), keep direction
         if not candidates:
             return snake.dir
 
-        # build list of safe-ish directions (allow stepping into tails that will be freed)
         safe_dirs = []
         for d in candidates:
             nx, ny = x + d[0], y + d[1]
             if cell_is_free_for_move((nx, ny)):
                 safe_dirs.append(d)
-
         if not safe_dirs:
-            # nothing even remotely safe, pick random candidate (stupid fallback)
             return random.choice(candidates)
 
-        # evaluate reachable area using BFS (treat tail-will-be-freed as empty)
-        def reachable_area(from_pos, limit=40):
+        # reachable-area BFS used for both players
+        def reachable_area_from(pos, treat_as_occupied=None, limit=80):
+            # treat_as_occupied: set of positions to temporarily consider occupied
             visited = set()
-            q = [from_pos]
-            visited.add(from_pos)
+            q = [pos]
+            visited.add(pos)
             idx = 0
             while idx < len(q) and len(visited) < limit:
                 cxp, cyp = q[idx]; idx += 1
@@ -209,48 +202,73 @@ class Duel:
                         continue
                     if (nxp, nyp) in visited:
                         continue
+                    if treat_as_occupied and (nxp, nyp) in treat_as_occupied:
+                        continue
                     # allow if currently free or tail that will be freed
                     if cell_is_free_for_move((nxp, nyp)):
                         visited.add((nxp, nyp))
                         q.append((nxp, nyp))
             return len(visited)
 
-        lookahead = 6
+        # baseline opponent reachable area (before our move)
+        opp_area_before = reachable_area_from(opp.head(), limit=60)
+
         cx = (WIDTH - 1) / 2.0
         cy = (HEIGHT - 1) / 2.0
 
         best = None
         best_score = -1e9
+
         for d in safe_dirs:
             after = (x + d[0], y + d[1])
-            # reachable area from after-position (bounded)
-            area = reachable_area(after, limit=lookahead * 8)
+            ax, ay = after
 
-            # prefer moves that increase distance from opponent head
+            # own reachable area from after-position
+            my_area = reachable_area_from(after, limit=80)
+
+            # simulate making 'after' occupied by our head for opponent computation
+            # temporarily mark occupancy and restore
+            orig = None
+            simulated = False
+            if 0 <= ax < WIDTH and 0 <= ay < HEIGHT:
+                orig = self.occupancy[ay][ax]
+                self.occupancy[ay][ax] = snake
+                simulated = True
+
+            try:
+                opp_area_after = reachable_area_from(opp.head(), limit=60)
+            finally:
+                if simulated:
+                    self.occupancy[ay][ax] = orig
+
+            lure_score = (opp_area_before - opp_area_after)  # positive if we shrink opponent space
+
+            # distance change relative to opponent: slightly prefer getting closer to tempt / cross
             cur_dist = abs(x - opp.head()[0]) + abs(y - opp.head()[1])
             new_dist = abs(after[0] - opp.head()[0]) + abs(after[1] - opp.head()[1])
-            dist_gain = new_dist - cur_dist
+            dist_delta = cur_dist - new_dist  # positive => closer
 
-            # distance to nearest wall (prefer away from walls)
-            wall_dist = min(after[0], after[1], WIDTH - 1 - after[0], HEIGHT - 1 - after[1])
-
-            # small penalty for moving into a cell that is currently occupied (but will be freed) to reduce risk
-            occ_penalty = 0
-            if not (0 <= after[0] < WIDTH and 0 <= after[1] < HEIGHT):
-                occ_penalty += 1000
-            elif self.occupancy[after[1]][after[0]] is not None and not tail_will_be_freed(after):
-                occ_penalty += 1000
-            elif self.occupancy[after[1]][after[0]] is not None and tail_will_be_freed(after):
-                occ_penalty += 1.5  # small risk
-
+            # prefer center crossings
             center_dist = abs(after[0] - cx) + abs(after[1] - cy)
-            noise = random.uniform(-0.5, 0.5)
+            wall_dist = min(after[0], after[1], WIDTH-1-after[0], HEIGHT-1-after[1])
 
-            score = (area * 3.0) + (dist_gain * 1.8) + (wall_dist * 1.0) - (center_dist * 0.25) - occ_penalty + noise
+            # small penalty if stepping into a currently-occupied cell that won't be freed
+            occ_penalty = 0
+            if self.occupancy[ay][ax] is not None and not tail_will_be_freed(after):
+                occ_penalty += 1000
 
-            # slight bonus for continuing forward
+            noise = random.uniform(-0.6, 0.6)
+
+            # score composition:
+            # - encourage larger personal free area
+            # - encourage reducing opponent's area (luring)
+            # - encourage moving closer to opponent a bit to engage
+            # - favor central crossing (penalize center_dist) and staying off walls (bonus wall_dist)
+            score = (my_area * 2.2) + (lure_score * 4.0) + (dist_delta * 1.6) + (wall_dist * 0.9) - (center_dist * 0.25) - occ_penalty + noise
+
+            # small bonus for keeping forward to avoid jitter
             if d == snake.dir:
-                score += 0.6
+                score += 0.7
 
             if score > best_score:
                 best_score = score
