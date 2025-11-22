@@ -74,6 +74,14 @@
             "program": "matrix_rain.py",
             "console": "integratedTerminal",
             "python": "/home/papst/ypy/bin/python"
-        }     
+        },
+        {
+            "name": "snake_duel",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "snake_duel.py",
+            "console": "integratedTerminal",
+            "python": "/home/papst/ypy/bin/python"
+        }             
     ]
 }
