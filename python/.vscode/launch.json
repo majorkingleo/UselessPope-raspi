@@ -66,6 +66,14 @@
             "console": "integratedTerminal",
             "python": "/home/papst/ypy/bin/python",
             "args": ["GPIO16"]
+        },
+        {
+            "name": "matrix",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "matrix_rain.py",
+            "console": "integratedTerminal",
+            "python": "/home/papst/ypy/bin/python"
         }     
     ]
 }
