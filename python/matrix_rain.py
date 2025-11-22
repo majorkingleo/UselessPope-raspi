@@ -131,6 +131,7 @@ try:
     config_refresh_time_out = 0
     config = config.Config()
     time_stop_start = time.time()
+    config.write_stats( "frequenz", str(0))
 
     while True:
         angle_offset = 0.0
