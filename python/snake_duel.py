@@ -386,7 +386,7 @@ class Duel:
                         self.pixels[y * WIDTH + x] = color
 
         while time.time() < end_time:
-            if winner == 1:
+            if winner == 1 or winner == None:
                 if show_on:
                     draw_positions(self.p1.positions(), self.p1.color)
                 else:
@@ -396,14 +396,6 @@ class Duel:
             elif winner == 2:
                 if show_on:
                     draw_positions(self.p2.positions(), self.p2.color)
-                else:
-                    for i in range(WIDTH * HEIGHT):
-                        self.pixels[i] = BLACK
-            else:
-                # tie: flash whole screen white/black
-                if show_on:
-                    for i in range(WIDTH * HEIGHT):
-                        self.pixels[i] = (200, 200, 200)
                 else:
                     for i in range(WIDTH * HEIGHT):
                         self.pixels[i] = BLACK
