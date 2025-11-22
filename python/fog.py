@@ -31,8 +31,10 @@ class Fog (GpiodBase.GpiodBase):
         current_value = self.Fog_request.get_value(self.Fog_offset)
         if current_value == gpiod.line.Value.ACTIVE:
             self.off()
+            return 0
         else:
             self.on()
+            return 1
 
 if __name__ == "__main__":
     fog = Fog()

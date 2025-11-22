@@ -45,13 +45,18 @@ class Ring (fog.Fog):
                 fog = config.get('fog')
 
                 if fog != None and int(fog) != old_fog_state:
-                    self.toggle()
-                    old_fog_state = int(fog)
+                    fog_state = self.toggle()
+                    print( "1 fog_state {}".format( fog_state ))
+                    old_fog_state = fog_state
+                    config.put( 'fog', "{}".format(fog_state) );
 
             self.detect_ringing()
             
             if self.is_ringing:
-                self.toggle()
+                fog_state = self.toggle()
+                print( "2 fog_state {}".format( fog_state ))
+                config.put( 'fog', "{}".format(fog_state) );
+                old_fog_state = fog_state
                 sleep(0.3)
                 
             self.is_ringing = False
