@@ -365,30 +365,72 @@ class Duel:
                 self.pixels[y*WIDTH + x] = tuple(min(255, c+80) for c in self.p2.color)
 
     def flash_winner(self, winner):
-        # flash board a few times
-        for _ in range(6):
+        """
+        Blink the winner's complete tail (its body) in its color and black for 3 seconds,
+        then return. If tie (winner is None) flash whole screen white/black.
+        """
+        duration = 3.0
+        interval = 0.25
+        end_time = time.time() + duration
+        show_on = True
+
+        # helper to draw a given set of positions in a color (or black)
+        def draw_positions(positions, color):
+            # clear first
             for i in range(WIDTH * HEIGHT):
                 self.pixels[i] = BLACK
+            if positions and color is not None:
+                for pos in positions:
+                    x, y = pos
+                    if 0 <= x < WIDTH and 0 <= y < HEIGHT:
+                        self.pixels[y * WIDTH + x] = color
+
+        while time.time() < end_time:
             if winner == 1:
-                for pos in self.p2.positions():
-                    x,y = pos
-                    if 0 <= x < WIDTH and 0 <= y < HEIGHT:
-                        self.pixels[y*WIDTH + x] = BLUE
+                if show_on:
+                    draw_positions(self.p1.positions(), self.p1.color)
+                else:
+                    # black
+                    for i in range(WIDTH * HEIGHT):
+                        self.pixels[i] = BLACK
             elif winner == 2:
-                for pos in self.p1.positions():
-                    x,y = pos
-                    if 0 <= x < WIDTH and 0 <= y < HEIGHT:
-                        self.pixels[y*WIDTH + x] = RED
+                if show_on:
+                    draw_positions(self.p2.positions(), self.p2.color)
+                else:
+                    for i in range(WIDTH * HEIGHT):
+                        self.pixels[i] = BLACK
             else:
-                # tie: white flash
-                for i in range(WIDTH * HEIGHT):
-                    self.pixels[i] = (160,160,160)
-            LEDMatrix.LEDMatrix(NEOPIXEL, auto_write=False, brightness=self.brightness).show_buffer(self.pixels) if hasattr(LEDMatrix.LEDMatrix, "show_buffer") else None
-            time.sleep(0.08)
-            for i in range(WIDTH * HEIGHT):
-                self.pixels[i] = BLACK
-            LEDMatrix.LEDMatrix(NEOPIXEL, auto_write=False, brightness=self.brightness).show_buffer(self.pixels) if hasattr(LEDMatrix.LEDMatrix, "show_buffer") else None
-            time.sleep(0.08)
+                # tie: flash whole screen white/black
+                if show_on:
+                    for i in range(WIDTH * HEIGHT):
+                        self.pixels[i] = (200, 200, 200)
+                else:
+                    for i in range(WIDTH * HEIGHT):
+                        self.pixels[i] = BLACK
+
+            # try to push to hardware/display
+            try:
+                # prefer buffer object's show if available
+                self.pixels.show()
+            except Exception:
+                try:
+                    self.led.show()
+                except Exception:
+                    pass
+
+            show_on = not show_on
+            time.sleep(interval)
+
+        # ensure cleared after flashing
+        for i in range(WIDTH * HEIGHT):
+            self.pixels[i] = BLACK
+        try:
+            self.pixels.show()
+        except Exception:
+            try:
+                self.led.show()
+            except Exception:
+                pass
 
 def set_pixel_buf(pixels, x, y, color):
     if 0 <= x < WIDTH and 0 <= y < HEIGHT:
