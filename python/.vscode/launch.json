@@ -82,6 +82,14 @@
             "program": "snake_duel.py",
             "console": "integratedTerminal",
             "python": "/home/papst/ypy/bin/python"
-        }             
+        },
+        {
+            "name": "screen_off",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "screen_off.py",
+            "console": "integratedTerminal",
+            "python": "/home/papst/ypy/bin/python"
+        }          
     ]
 }
