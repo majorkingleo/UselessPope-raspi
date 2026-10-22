@@ -56,8 +56,7 @@ class Duel:
 
     def __init__(self, pixels, brightness=0.04, density=None):
         self.pixels = pixels  # flat buffer
-        self.brightness = brightness
-        self.led = LEDMatrix.LEDMatrix(NEOPIXEL, auto_write=False, brightness=self.brightness)
+        self.brightness = brightness        
         # players start on opposite sides, slightly different rows to avoid instant head-on
         self.p1 = Snake((4, 15), (1, 0), RED, max_len=100)
         self.p2 = Snake((27, 16), (-1, 0), BLUE, max_len=100)
@@ -334,11 +333,11 @@ class Duel:
         elif not self.p1.alive:
             round_over = True
             winner = 2
-            self.scores[1] += 1
+            self.scores[1] = 1
         elif not self.p2.alive:
             round_over = True
             winner = 1
-            self.scores[0] += 1
+            self.scores[0] = 1
 
         return round_over, winner
 
@@ -405,10 +404,7 @@ class Duel:
                 # prefer buffer object's show if available
                 self.pixels.show()
             except Exception:
-                try:
-                    self.led.show()
-                except Exception:
-                    pass
+                pass
 
             show_on = not show_on
             time.sleep(interval)
@@ -419,10 +415,7 @@ class Duel:
         try:
             self.pixels.show()
         except Exception:
-            try:
-                self.led.show()
-            except Exception:
-                pass
+            pass
 
 def set_pixel_buf(pixels, x, y, color):
     if 0 <= x < WIDTH and 0 <= y < HEIGHT:
@@ -430,31 +423,30 @@ def set_pixel_buf(pixels, x, y, color):
 
 def main():
     # create LED buffer
-    led = LEDMatrix.LEDMatrix(NEOPIXEL, auto_write=False, brightness=0.04)
-    pixels = led  # object implements buffer protocol; used like flat buffer in other scripts
+    pixels = LEDMatrix.LEDMatrix(NEOPIXEL, auto_write=False, brightness=0.04)
 
     # wait for db (keeps same pattern as other scripts)
     while not config.is_db_available():
         time.sleep(0.3)
 
     duel = Duel(pixels, brightness=0.04)
+    conf = config.Config() if duel.config is None else duel.config
 
     frame_delay = 0.06
     try:
         while True:
             # refresh brightness from config occasionally
-            try:
-                c = config.Config() if duel.config is None else duel.config
-                b = c.get('brightness')
+            try:                
+                b = conf.get('brightness')
                 if b is not None:
                     b = float(b)
                     if abs(b - duel.brightness) > 1e-6:
-                        duel.brightness = b
-                        led = LEDMatrix.LEDMatrix(NEOPIXEL, auto_write=False, brightness=duel.brightness)
-                        pixels = led
+                        #duel.brightness = b
+                        pixels = LEDMatrix.LEDMatrix(NEOPIXEL, auto_write=False, brightness=b)                         
                         duel.pixels = pixels
-                duel.config = c
+                duel.config = conf
             except Exception:
+                print("Error refreshing brightness\n")
                 pass
 
             round_over = False
@@ -470,14 +462,7 @@ def main():
                 except Exception:
                     pass
                 # show (LEDMatrix implementation)
-                try:
-                    pixels.show()
-                except Exception:
-                    # try alternative
-                    try:
-                        led.show()
-                    except Exception:
-                        pass
+                pixels.show()
 
                 if over:
                     round_over = True
@@ -489,8 +474,19 @@ def main():
             # optional DB stats
             try:
                 if duel.config:
-                    duel.config.write_stats("snake_p1_wins", str(duel.scores[0]))
-                    duel.config.write_stats("snake_p2_wins", str(duel.scores[1]))
+                    score1 = int(duel.config.get_stats("snake_p1_wins"))
+                    score2 = int(duel.config.get_stats("snake_p2_wins"))
+
+                    score1 += duel.scores[0]
+                    score2 += duel.scores[1]
+
+                    duel.scores[0] = 0
+                    duel.scores[1] = 0
+
+                    #print ("Scores: P1: {0}  P2: {1}\n".format(score1, score2))
+
+                    duel.config.write_stats("snake_p1_wins", str(score1))
+                    duel.config.write_stats("snake_p2_wins", str(score2))
             except Exception:
                 pass
 
